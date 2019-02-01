@@ -4,6 +4,8 @@ Miscellaneous bits and pieces for messing with SAM- and BAM-format files.
 
 ## Python scripts:
 
-* samflags -- decode SAM flags field
 * isPrimaryAlwaysBest -- test whether the alignment marked as "primary" is
                          actually among the highest-scoring hits
+* keepOffHits -- keep hits that are imperfect (NM > 0 or cigar doesn't
+                 match '^\d+M$') for later analysis
+* samflags -- decode SAM flags field

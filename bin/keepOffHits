@@ -1,0 +1,30 @@
+#!/usr/bin/env R
+
+library(tidyverse)
+
+loadSam <- function(fn) {
+  unwanted <- read_tsv(fn,col_names=FALSE)
+  colnames(unwanted) <- c("Read","Flags","Contig","Position","MapQ","Cigar","Mate","MatePos","TLen","Seq","Qual","NH","HI","AS","NM")
+  unwanted <- unwanted %>% select(Read,Flags,Contig,Cigar,NM,AS)
+  unwanted$Primary <- !(bitwAnd(unwanted$Flags,0x100))
+  return(unwanted)
+}
+
+filterHit <- function(tib) {
+  mismatch <- tib$NM != "NM:i:0"
+  cigNotSimple <- sapply(strsplit(tib$Cigar,"[A-Z]"),length) > 1
+  keep <- mismatch | cigNotSimple
+  return(tib[keep,])
+}
+
+main <- function(args) {
+  inFN <- args[1]
+  outFN <- args[2]
+  sam <- loadSam(inFN)
+  fsam <- filterHit(sam)
+  write_tsv(fsam,outFN)
+}
+
+if (!interactive()) {
+  main(commandArgs(trailingOnly=TRUE))
+}
