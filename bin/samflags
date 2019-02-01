@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+
+HEX_PAT = re.compile("^0x[0-9A-Fa-f]+$")
+HEX_DIG = re.compile("[A-Fa-f]")
+DEC_PAT = re.compile("^[0-9]+$")
+
+FLAGS = {  0x1: "multiple segments",
+           0x2: "segments properly aligned",
+           0x4: "unmapped",
+           0x8: "next segment unmapped",
+          0x10: "reverse complement",
+          0x20: "next segment reverse complemented",
+          0x40: "first segment in template",
+          0x80: "last segment in template",
+         0x100: "secondary alignment",
+         0x200: "failed quality control",
+         0x400: "PCR/optical duplicate",
+         0x800: "supplementary alignment"
+}
+
+for k in sys.argv[1:]:
+  if HEX_PAT.match(k) or HEX_DIG.search(k):
+    v = int(k,16)
+  elif DEC_PAT.match(k):
+    v = int(k,10)
+  else:
+    print("not a numeric: '%s'" % (k,))
+    continue
+  print("%d 0x%x %s" % (v,v,format(v,'b')))
+  for bit in FLAGS.keys():
+    if v & bit:
+      print("  %s" % (FLAGS[bit],))
