@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+
+import sys
+import re
+import subprocess
+
+SAMTOOLS = ["samtools","view"]
+AS_PAT = re.compile("^AS:i:(\d+)$")
+
+def extractScore(flds):
+  candidates = [AS_PAT.match(x) for x in flds if AS_PAT.match(x)]
+  if len(candidates) > 1:
+    sys.stderr.write("Non-unique AS match for '%s'\n" % (flds[0],))
+    sys.exit(-1)
+  score = int(candidates[0].group(1))
+  return score
+  
+def isPrimary(flds):
+  return (int(flds[1]) & 0x100) == 0
+
+def isPrimaryBest(hitset):
+  primarySet = [x for x in hitset if isPrimary(x)]
+  if len(primarySet) != 1:
+    sys.stderr.write("Got %d primaries for read '%s'\n" % (len(primarySet),hitset[0][0]))
+    sys.exit(-2)
+  primary = primarySet[0]
+  pScore = extractScore(primary)
+  maxScore = max([extractScore(x) for x in hitset])
+  return pScore == maxScore # can't be higher, shouldn't be lower
+
+def main(fn):
+  proc = subprocess.Popen(SAMTOOLS + [fn],stdout=subprocess.PIPE)
+  fd = proc.stdout
+  oldName = "zork" # anything that isn't likely to be an actual read name
+  group = []
+  count = 0
+  groupCount = 0
+  for line in fd:
+    count += 1
+    flds = line.decode("utf-8").split("\t")
+    name = flds[0]
+    if oldName != name:
+      if len(group) > 0:
+        if not isPrimaryBest(group):
+          sys.stdout.write("%s\n" % (group[0][0],))
+        groupCount += 1
+      group = [flds]
+    else:
+      group.append(flds)
+    oldName = name
+  if not isPrimaryBest(group):
+    sys.stdout.write("%s\n" % (group[0][0],))
+  groupCount += 1
+  sys.stderr.write("processed %d reads, %d groups\n" % (count,groupCount))
+
+main(sys.argv[1])
