@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import sys
+from os.path import splitext
+import pysam
+
+def openFile(fn):
+  # test suffix: is it BAM or SAM?
+  suff = splitext(fn)[1]
+  if suff == ".bam":
+    fd = pysam.AlignmentFile(fn,"rb")
+  elif suff == ".sam":
+    fd = pysam.AlignmentFile(fn,"r")
+  else:
+    raise OSError("unknown suffix '%s' for '%s'" % (suff,fn))
+  return fd
+
+def loadHits(fn):
+  fd = openFile(fn)
+  hits = {}
+  count = 0
+  primary = 0
+  for read in fd.fetch(until_eof=True):
+    count += 1
+    if read.is_secondary:
+      continue
+    primary += 1
+    score = read.get_tag("AS")
+    hits[read.query_name] = score
+  fd.close()
+  sys.stderr.write("loaded %d reference sequences (%d primary)\n" % (count,primary))
+  return hits
+    
+
+def main(args):
+  # expect 2 BAM or SAM files
+  # first is reference, second is 
+  referenceFN = args[0]
+  alternativeFN = args[1]
+  ref = loadHits(referenceFN)
+  altFD = openFile(alternativeFN)
+  acount = 0
+  aproblem = 0
+  foundInAlt = set()
+  for alt in altFD.fetch():
+    acount += 1
+    aname = alt.query_name
+    if aname not in ref:
+      continue
+    foundInAlt.add(aname)
+    ascore = alt.get_tag("AS")
+    if ascore > ref[aname]:
+      aproblem += 1
+      sys.stdout.write("%s %d > %d\n" % (aname,ascore,ref[aname]))
+  sys.stderr.write("checked %d alt sequences (%d problems, %d foundInAlt)\n" % (acount,aproblem,len(foundInAlt)))
+
+if __name__ == "__main__":
+  main(sys.argv[1:])
