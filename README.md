@@ -8,4 +8,5 @@ Miscellaneous bits and pieces for messing with SAM- and BAM-format files.
                          actually among the highest-scoring hits
 * keepOffHits -- keep hits that are imperfect (NM > 0 or cigar doesn't
                  match '^\d+M$') for later analysis
+* reportBetterHits -- report hits in second file that score higher than first.
 * samflags -- decode SAM flags field
