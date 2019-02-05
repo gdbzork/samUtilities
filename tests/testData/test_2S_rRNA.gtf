@@ -1,0 +1,3 @@
+rDNA	FlyBase	exon	16526	16555	.	+	.	gene_id "FBgn0267510"; transcript_id "2SrRNA-Psi:CR45850-RA"; gene_name "2SrRNA-Psi:CR45850";
+chrX	FlyBase	exon	23291700	23291729	.	+	.	gene_id "FBgn0267524"; transcript_id "2SrRNA:CR45864-RA"; gene_name "2SrRNA:CR45864";
+chr2L	FlyBase	exon	8000	10000	.	+	.	gene_id "FBgn0267524"; transcript_id "2SrRNA:CR45864-RA"; gene_name "2SrRNA:CR45864";

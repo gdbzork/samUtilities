@@ -1,0 +1,11 @@
+@HD	VN:1.4
+@SQ	SN:m19	LN:19
+@SQ	SN:m28	LN:28
+@SQ	SN:28SrRNA-rDNA:4491-5312	LN:821
+@SQ	SN:5SrRNA-chr2R:19762067-19762202	LN:135
+@PG	ID:STAR	PN:STAR	VN:STAR_2.6.1d	CL:/usr/local/pipelinesoftware/smRNAseq/STAR-2.6.1d/bin/STAR   --runThreadN 1   --genomeDir /home/brown22/analyses/smtest_Dme_piwi/temp/unwantedIndex   --readFilesIn /home/brown22/analyses/smtest_Dme_piwi/temp/MM2/SLX-16297.NEBNext12.HWMMGBBXX.s_2.r_1_filteredByLength.fq.gz      --readFilesCommand zcat      --outFileNamePrefix /home/brown22/analyses/smtest_Dme_piwi/temp/MM2/SLX-16297.NEBNext12.HWMMGBBXX.s_2.r_1_unwanted_STAR_   --outMultimapperOrder Random   --outSAMtype BAM   Unsorted      --outSAMattributes NH   HI   AS   NM      --outSAMunmapped None      --outSAMmapqUnique 60   --outSAMmultNmax 50   --outFilterMultimapNmax 50   --outFilterMismatchNoverLmax 0.04   --alignIntronMax 100
+@CO	user command line: /usr/local/pipelinesoftware/smRNAseq/STAR-2.6.1d/bin/STAR --readFilesIn /home/brown22/analyses/smtest_Dme_piwi/temp/MM2/SLX-16297.NEBNext12.HWMMGBBXX.s_2.r_1_filteredByLength.fq.gz --outFileNamePrefix /home/brown22/analyses/smtest_Dme_piwi/temp/MM2/SLX-16297.NEBNext12.HWMMGBBXX.s_2.r_1_unwanted_STAR_ --outSAMmultNmax 50 --outFilterMultimapNmax 50 --outMultimapperOrder Random --runThreadN 1 --genomeDir /home/brown22/analyses/smtest_Dme_piwi/temp/unwantedIndex --outSAMmapqUnique 60 --outSAMtype BAM Unsorted --outSAMunmapped None --readFilesCommand zcat --alignIntronMax 100 --outFilterMismatchNoverLmax 0.04 --outSAMattributes NH HI AS NM
+K00252:335:HWMMGBBXX:2:1101:25966:1437	0	m28	1	60	28M	*	0	0	CGTACGATCCGTTTAAACCATTGTTCAA	FJJJJJJJJJJJJJJJJJJJJJJJJJJJ	NH:i:1	HI:i:1	AS:i:27	NM:i:0
+K00252:335:HWMMGBBXX:2:1101:25966:1437	256	28SrRNA-rDNA:4491-5312	195	0	1S25M	*	0	0	ATCGTCAATGAAATACCACTACTCTT	FJJJJJJJJJJJJJJJJJJJJJJJJJ	NH:i:6	HI:i:6	AS:i:24	NM:i:0
+K00252:335:HWMMGBBXX:2:1101:2372:1455	0	5SrRNA-chr2R:19762067-19762202	35	1	25M	*	0	0	GGACTACATATGGTTGAGGGTTGTA	FJFFJJJ<JJJJJJJJJJJJJJJJJ	NH:i:4	HI:i:1	AS:i:24	NM:i:0
+K00252:335:HWMMGBBXX:2:1103:7912:44464	16	5SrRNA-chr2R:19762067-19762202	80	3	8S13M	*	0	0	ACGGCAACAATCCCGGTACCA	JJJJJJJJJJJJJJJJJJJJF	NH:i:2	HI:i:2	AS:i:11	NM:i:0

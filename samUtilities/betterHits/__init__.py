@@ -36,7 +36,7 @@ class BetterHits:
       for line in fd:
         flds = line.split("\t")
         regions.append((flds[0],int(flds[3]),int(flds[4])))
-    return
+    return regions
   
   def loadHits(self,fn):
     fd = self.openFile(fn)
@@ -51,13 +51,13 @@ class BetterHits:
       score = read.get_tag("AS")
       hits[read.query_name] = score
     fd.close()
-    self.log.info("loaded %d reference sequences (%d primary)\n" % (count,primary))
+    self.log.info("loaded %d reference sequences (%d primary)" % (count,primary))
     return hits
   
   def overlaps(self,read,intervals):
     olap = False
     for (chrom,left,right) in intervals:
-      if chrom == read.contig:
+      if chrom == read.reference_name:
         olapBP = read.get_overlap(left,right)
         if olapBP > 0:
           olap = True
@@ -79,6 +79,8 @@ class BetterHits:
       acount += 1
       aname = alt.query_name
       if aname not in ref:
+        continue
+      if self.overlaps(alt,intervals):
         continue
       foundInAlt.add(aname)
       ascore = alt.get_tag("AS")
