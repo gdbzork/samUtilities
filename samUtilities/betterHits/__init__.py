@@ -63,8 +63,14 @@ class BetterHits:
           olap = True
           break
     return olap
-        
-  
+
+  def getResults(self):
+    return self.results
+
+  def dumpResults(self,dest):
+    for (name,ascore,rscore) in self.results:
+      dest.write("%s\t%d\t%d\n" % (name,ascore,rscore))
+
   def compare(self,referenceFN,alternativeFN,gtfFN):
     ref = self.loadHits(referenceFN)
     altFD = self.openFile(alternativeFN)
@@ -87,5 +93,6 @@ class BetterHits:
       if ascore > ref[aname]:
         aproblem += 1
         results.append((aname,ascore,ref[aname]))
+    self.results = results
     self.log.info("checked %d alt sequences (%d problems, %d foundInAlt)\n" % (acount,aproblem,len(foundInAlt)))
-    return results
+    return len(results)

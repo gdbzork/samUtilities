@@ -18,4 +18,4 @@ args = processCommandLine()
 sys.stderr.write("ref: %s  alt: %s  gtf: %s\n" % (args.reference,args.alternative,args.gtf))
 comp = BetterHits()
 results = comp.compare(args.reference,args.alternative,args.gtf)
-
+comp.dumpResults(sys.stdout)
