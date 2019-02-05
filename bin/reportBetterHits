@@ -1,26 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
-from os.path import splitext
 import argparse
-import logging
+from samUtilities.betterHits import BetterHits
 
-import pysam
-
-LOGNAME = "betterHits"
-LOGLEV = logging.DEBUG
-
-def configureLogging():
-  log = logging.getLogger(LOGNAME)
-  log.setLevel(LOGLEV)
-  fmt = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s",
-                          datefmt="[%Y-%m-%d %H:%M:%S]")
-  hdlr = logging.StreamHandler()
-  hdlr.setFormatter(fmt)
-  log.addHandler(hdlr)
-  return log
-
-def processCommandLine():
+def processCommandLine(args=sys.argv):
   parser = argparse.ArgumentParser(description="report better hits in alternative file")
   parser.add_argument("-g","--gtf",action="store",
       help="GTF file: only report hits that do NOT overlap these regions")
@@ -28,81 +12,10 @@ def processCommandLine():
       help="Reference file")
   parser.add_argument("alternative",action="store",
       help="Alternative: report higher-scoring alignments WRT reference")
-  return parser.parse_args()
+  return parser.parse_args(args[1:])
 
-def openFile(fn):
-  # test suffix: is it BAM or SAM?
-  suff = splitext(fn)[1]
-  if suff == ".bam":
-    fd = pysam.AlignmentFile(fn,"rb")
-  elif suff == ".sam":
-    fd = pysam.AlignmentFile(fn,"r")
-  else:
-    raise OSError("unknown suffix '%s' for '%s'" % (suff,fn))
-  return fd
+args = processCommandLine()
+sys.stderr.write("ref: %s  alt: %s  gtf: %s\n" % (args.reference,args.alternative,args.gtf))
+comp = BetterHits()
+results = comp.compare(args.reference,args.alternative,args.gtf)
 
-def loadGTF(fn,regions):
-  with open(fn,'r') as fd:
-    for line in fd:
-      flds = line.split("\t")
-      regions.append((flds[0],int(flds[3]),int(flds[4])))
-  return
-
-def loadHits(fn):
-  fd = openFile(fn)
-  hits = {}
-  count = 0
-  primary = 0
-  for read in fd.fetch(until_eof=True):
-    count += 1
-    if read.is_secondary:
-      continue
-    primary += 1
-    score = read.get_tag("AS")
-    hits[read.query_name] = score
-  fd.close()
-  sys.stderr.write("loaded %d reference sequences (%d primary)\n" % (count,primary))
-  return hits
-
-def overlaps(read,intervals):
-  olap = False
-  for (chrom,left,right) in intervals:
-    if chrom == read.contig:
-      olapBP = read.get_overlap(left,right)
-      if olapBP > 0:
-        olap = True
-        break
-  return olap
-      
-
-def main(args):
-  # expect 2 BAM or SAM files
-  # first is reference, second is 
-  referenceFN = args.reference
-  alternativeFN = args.alternative
-  gtfFN = args.gtf
-  ref = loadHits(referenceFN)
-  altFD = openFile(alternativeFN)
-  intervals = []
-  if gtfFN != None:
-    loadGTF(gtfFN,intervals)
-  acount = 0
-  aproblem = 0
-  foundInAlt = set()
-  for alt in altFD.fetch():
-    acount += 1
-    aname = alt.query_name
-    if aname not in ref:
-      continue
-    foundInAlt.add(aname)
-    ascore = alt.get_tag("AS")
-    if ascore > ref[aname]:
-      aproblem += 1
-      sys.stdout.write("%s %d > %d\n" % (aname,ascore,ref[aname]))
-  sys.stderr.write("checked %d alt sequences (%d problems, %d foundInAlt)\n" % (acount,aproblem,len(foundInAlt)))
-
-if __name__ == "__main__":
-  log = configureLogging()
-  args = processCommandLine()
-  log.debug("ref: %s  alt: %s  gtf: %s" % (args.reference,args.alternative,args.gtf))
-#  main(args,log)
