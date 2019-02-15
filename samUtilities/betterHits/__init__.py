@@ -8,8 +8,9 @@ class BetterHits:
   LOGLEV = logging.DEBUG
 
   def __init__(self,log=None):
-    self.log = log if log != None else self.configureLogging()
-  
+    self.log = log if log is not None else self.configureLogging()
+    self.results = None
+
   def configureLogging(self):
     log = logging.getLogger(self.LOGNAME)
     log.setLevel(self.LOGLEV)
@@ -19,8 +20,9 @@ class BetterHits:
     hdlr.setFormatter(fmt)
     log.addHandler(hdlr)
     return log
-  
-  def openFile(self,fn):
+
+  @staticmethod
+  def openFile(fn):
     # test suffix: is it BAM or SAM?
     suff = splitext(fn)[1]
     if suff == ".bam":
@@ -30,14 +32,15 @@ class BetterHits:
     else:
       raise OSError("unknown suffix '%s' for '%s'" % (suff,fn))
     return fd
-  
-  def loadGTF(self,fn,regions):
+
+  @staticmethod
+  def loadGTF(fn,regions):
     with open(fn,'r') as fd:
       for line in fd:
         flds = line.split("\t")
         regions.append((flds[0],int(flds[3]),int(flds[4])))
     return regions
-  
+
   def loadHits(self,fn):
     fd = self.openFile(fn)
     hits = {}
@@ -53,8 +56,9 @@ class BetterHits:
     fd.close()
     self.log.info("loaded %d reference sequences (%d primary)" % (count,primary))
     return hits
-  
-  def overlaps(self,read,intervals):
+
+  @staticmethod
+  def overlaps(read,intervals):
     olap = False
     for (chrom,left,right) in intervals:
       if chrom == read.reference_name:
@@ -75,7 +79,7 @@ class BetterHits:
     ref = self.loadHits(referenceFN)
     altFD = self.openFile(alternativeFN)
     intervals = []
-    if gtfFN != None:
+    if gtfFN is not None:
       self.loadGTF(gtfFN,intervals)
     acount = 0
     aproblem = 0
